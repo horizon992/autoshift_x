@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="スタッフの勤務条件や必要人数を設定して、月間シフトを自動作成するAUTOSHIFTのデモです。">
+  <meta name="theme-color" content="#1688e8">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg?v=20261017">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/img/favicon-192.png?v=20261017">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png?v=20261017">
+  <title>AUTOSHIFT｜シフト自動作成システム</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=20261014-preview-contrast">
+</head>
+<body>
+<header class="site-header">
+  <div class="brand">
+    <button type="button" id="brandHome" class="brand-home brand-eyebrow" aria-label="AUTOSHIFT トップへ">AUTOSHIFT</button>
+    <h1>必要な情報を入力するだけで、シフト表を自動作成。</h1>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="header-hamburger" id="headerHamburger" aria-label="メニューを開く" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav class="header-nav" id="headerNav" aria-label="クイックナビ">
+      <button type="button" class="header-nav-button" data-header-view="shift" data-header-message="基本情報よりスタッフの勤務曜日・時間・希望休を入力 → 設定より営業時間・シフト割を入力 → 自動作成。コメントがあれば基本情報から調整してください。"><strong>シフト作成</strong></button>
+      <button type="button" class="header-nav-button" data-header-view="advanced" data-header-message="設定の業務区分へ移動し、業務内容や必要条件を設定します。"><strong>高度なシフト管理</strong></button>
+      <button type="button" class="header-nav-button" data-header-view="autoshift" data-header-message="AUTOSHIFTは、必要な情報を入力すると条件を確認し、月間のシフト表を自動で作成できるシフト管理ソフトです。"><strong>AUTOSHIFT</strong></button>
+    </nav>
+  </div>
+  <div id="headerPopover" class="header-popover" role="status" aria-live="polite"></div>
+</header>
+
+
+<main class="app-shell">
+
+  <!-- HERO -->
+  <section class="hero-card">
+    <div class="hero-copy">
+      <p class="hero-kicker">AUTOSHIFT</p>
+      <h2>職場に合わせて、<br>かんたんにシフトを作成。</h2>
+      <p>スタッフの勤務条件や必要人数を設定すれば、条件に合わせてシフト案を自動作成します。</p>
+      <div class="header-guide" aria-label="かんたんな操作の仕方">
+        <strong>かんたんな操作の仕方</strong>
+        <button type="button" class="header-guide-link" data-header-view="basic">基本情報へ →</button>
+      </div>
+    </div>
+    <div class="hero-image" aria-label="シフト管理イメージ">
+      <div class="hero-image-fallback">
+        <span>AUTOSHIFT</span>
+        <strong>MONTHLY SCHEDULE</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN NAVIGATION: HEROの下に固定配置 -->
+  <nav class="main-nav" aria-label="メインメニュー"><div class="nav-inner"><button type="button" class="main-nav-toggle" id="mainNavToggle" aria-label="メニューを開く" aria-expanded="false">☰</button>
+    <button class="nav-item" data-view="basic">基本情報<br><small>（スタッフ登録）</small></button>
+    <button class="nav-item" data-view="shift">シフト作成</button>
+    <button class="nav-item" data-view="settings">設定</button>
+    <button class="nav-item" data-view="other">その他</button>
+  </div></nav>
+
+  <!-- WELCOME / INITIAL SCREEN -->
+  <section class="view-panel active" id="view-home">
+    <div class="welcome-card">
+      <div class="welcome-copy">
+        <p class="section-kicker">WELCOME TO AUTOSHIFT</p>
+        <h2>必要な情報を入力するだけで、<br>シフト表を自動作成。</h2>
+        <p>スタッフの勤務条件、必要人数、業務スキルを設定すると、AUTOSHIFTが条件を確認しながら月間シフトを自動作成します。</p>
+        <div class="welcome-actions welcome-choice-grid" aria-label="開始方法を選択">
+          <article class="welcome-choice">
+            <span class="welcome-choice-number">01 / FROM SCRATCH</span>
+            <h3>新規に作成する</h3>
+            <p>スタッフや勤務条件を一から登録して、職場に合わせたシフトを作ります。</p>
+            <button type="button" class="button button-primary" id="startNewSchedule">新規作成を始める</button>
+          </article>
+          <article class="welcome-choice welcome-choice-sample">
+            <span class="welcome-choice-number">02 / TRY SAMPLE</span>
+            <h3>サンプルを参考にする</h3>
+            <p>登録済みの6名・2つの勤務パターンを見ながら、設定や自動作成を試せます。</p>
+            <button type="button" class="button button-secondary" id="startSampleSchedule">サンプルで試す</button>
+          </article>
+        </div>
+        <div class="welcome-preview-link">
+          <span><strong>まず完成形を見たい方へ</strong><small>サンプル条件で月間シフトを自動作成し、プレビューを表示します。</small></span>
+          <button type="button" class="text-link" id="startPreviewDemo">完成イメージを見る →</button>
+        </div>
+        <details class="welcome-howto">
+          <summary>操作方法を見る</summary>
+          <ol>
+            <li><strong>開始方法を選ぶ</strong><span>新規作成かサンプルを選択します。サンプルはあとから編集できます。</span></li>
+            <li><strong>条件を確認・設定する</strong><span>スタッフ、勤務パターン、曜日ごとの必要人数、休日を入力します。</span></li>
+            <li><strong>作成して調整する</strong><span>シフトを自動作成し、必要に応じて配置を調整します。</span></li>
+            <li><strong>プレビュー・確定する</strong><span>月間プレビューを確認し、問題がなければ確定・保存します。印刷や共有は確定後に使えます。</span></li>
+          </ol>
+        </details>
+      </div>
+      <div class="welcome-image"><img src="assets/img/office3.jpg?v=44" alt="AUTOSHIFT ウェルカムイメージ" loading="eager"></div>
+    </div>
+    <div class="welcome-features">
+      <article><span class="welcome-icon">✓</span><div><strong>条件を読み込んで自動配置</strong><p>勤務曜日・時間・勤務パターン・希望休などを確認して配置します。</p></div></article>
+      <article><span class="welcome-icon">▦</span><div><strong>必要人数を曜日ごとに設定</strong><p>必要な枠を設定して、月間シフトを作成できます。</p></div></article>
+      <article><span class="welcome-icon">↻</span><div><strong>再読込で最新条件を反映</strong><p>基本情報や設定を変更したあとも、最新条件から再配置できます。</p></div></article>
+    </div>
+  </section>
+
+  <!-- BASIC INFORMATION -->
+  <section class="view-panel" id="view-basic">
+    <div class="section-head">
+      <div>
+        <p class="section-kicker">START HERE</p>
+        <h2>基本情報</h2>
+        <p>シフトを作るための基本となる情報です。スタッフの状況や勤務条件が変わったときも、ここから変更できます。</p>
+      </div>
+      <div class="head-actions"><span class="status-pill" id="basicStatus">設定を確認</span><button type="button" class="button button-save" data-save>設定を保存</button></div>
+    </div>
+
+    <div class="basic-start-actions">
+      <button type="button" class="button button-secondary" id="basicNewSchedule">＋ 新規作成</button>
+      <button type="button" class="button button-secondary" id="basicSampleSchedule">サンプルから作成</button>
+    </div>
+
+    <div class="info-note">
+      <strong>AUTOSHIFTの準備状況</strong>
+      <span>赤い項目を設定すると、AUTOSHIFTが全条件を確認して自動作成します。</span>
+    </div>
+    <div id="preparationStatus" class="preparation-status" aria-label="準備状況"></div>
+
+    <div class="basic-staff-section">
+      <div class="subhead">
+        <div>
+          <h3>スタッフ基本情報</h3>
+          <p>ここで入力した内容はスタッフ登録そのものです。勤務状況が変わったときもここから変更できます。</p>
+        </div>
+        <button type="button" class="button button-secondary" id="addStaff">＋ スタッフを追加</button>
+      </div>
+      <div id="basicStaffList" class="basic-staff-list"></div>
+    </div>
+
+    <div class="basic-grid">
+      <article class="summary-card">
+        <span class="summary-label">スタッフ</span>
+        <strong id="basicStaffCount">0名</strong>
+        <button type="button" class="text-link" data-go="basic">スタッフを確認 →</button>
+      </article>
+      <article class="summary-card">
+        <span class="summary-label">勤務パターン</span>
+        <strong id="basicPatternCount">0件</strong>
+        <button type="button" class="text-link" data-go="settings">勤務パターンを設定 →</button>
+      </article>
+      <article class="summary-card">
+        <span class="summary-label">必要人数</span>
+        <strong id="basicCoverageStatus">未設定</strong>
+        <button type="button" class="text-link" data-go="settings">配置人数を設定 →</button>
+      </article>
+      <article class="summary-card">
+        <span class="summary-label">定休日</span>
+        <strong id="basicHolidayStatus">未設定</strong>
+        <button type="button" class="text-link" data-go="other">定休日を設定 →</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- SHIFT CREATION -->
+  <section class="view-panel" id="view-shift">
+    <div class="section-head shift-head">
+      <div>
+        <p class="section-kicker">MONTHLY SHIFT</p>
+        <h2>シフト作成</h2>
+        <p>対象月を選択して、自動作成・カスタマイズ・確定を行います。</p>
+      </div>
+
+      <div class="head-actions"><div class="month-picker">
+        <label for="targetMonth">対象月</label>
+        <input type="month" id="targetMonth">
+        <span id="monthStatus" class="month-status">未作成</span>
+        </div><button type="button" class="button button-save" id="saveShiftHeader">このシフトを保存</button></div>
+    </div>
+
+    <div class="saved-shift-picker">
+      <label for="savedScheduleSelect">シフト月選択</label>
+      <select id="savedScheduleSelect"><option value="">月を選択</option></select>
+      <span id="savedScheduleStatus" class="saved-shift-status">この月はまだ保存されていません</span><small>保存した月のスタッフ基本情報・設定・休日・シフトをまとめて読み込み、再編集できます。</small>
+    </div>
+
+    <div class="action-row">
+      <button type="button" class="button button-primary button-large" id="autoCreate">自動作成する</button>
+      <button type="button" class="button button-outline" id="recheck">再読込</button>
+      <button type="button" class="button button-confirm" id="confirmSchedule">シフトを確定</button>
+      <button type="button" class="button button-secondary" id="saveNamedSchedule">このシフトを保存</button>
+      <span class="action-spacer" aria-hidden="true"></span>
+      <button type="button" class="button button-secondary" id="newSchedule">＋ 新規作成</button>
+      <button type="button" class="button button-sample" id="sampleSchedule">サンプルから作成</button>
+    </div>
+
+    <div class="attention-card" id="attentionCard">
+      <div class="attention-title">
+        <span class="attention-icon">!</span>
+        <div>
+          <strong id="attentionTitle">確認が必要な箇所</strong>
+          <span id="attentionCount">0件</span>
+        </div>
+      </div>
+      <div id="attentionList" class="attention-list"></div>
+    </div>
+
+    <div id="shiftPreparation" class="shift-preparation" aria-label="シフト作成準備"></div>
+
+    <div class="schedule-panel">
+      <div class="schedule-panel-head">
+        <div>
+          <h3 id="scheduleTitle">月間シフト</h3>
+          <p id="scheduleMeta">対象月を選択してください。</p>
+        </div>
+        <div id="scheduleState" class="schedule-state">未作成</div>
+      </div>
+
+      <div class="schedule-scroll">
+        <table class="schedule-table" id="scheduleTable"></table>
+      </div>
+
+    </div>
+
+    <div class="preview-panel" id="previewPanel">
+      <div class="schedule-panel-head"><div><h3>月間プレビュー</h3><p>確定前の確認用表示です。</p></div></div>
+      <div id="previewContent"></div>
+    </div>
+
+    <div class="settings-section shift-tools-section">
+      <div class="subhead"><div><h3>月間プレビュー・印刷・共有</h3><p>作成した月間シフトを確認、印刷、共有できます。</p></div></div>
+      <div class="action-row">
+        <button type="button" class="button button-secondary" id="shiftPreviewToggle">月間プレビュー</button>
+        <button type="button" class="button button-secondary" id="shiftPrintSchedule">印刷</button>
+        <div class="share-menu-wrap"><button type="button" class="button button-secondary" id="shiftShareSchedule">共有</button><div class="share-menu" id="shiftShareMenu" hidden><button type="button" id="shiftNativeShare">端末で共有</button><button type="button" id="shiftShareLine">LINEで共有</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view-panel" id="view-settings">
+    <div class="section-head">
+      <div>
+        <p class="section-kicker">RULES & CONDITIONS</p>
+        <h2>設定</h2>
+        <p>業務スキル、勤務パターン、配置人数など、自動作成に使うルールを設定します。</p>
+      </div>
+      <button type="button" class="button button-save" data-save>設定を保存</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="subhead">
+        <div>
+          <h3>業務スキル</h3>
+          <p>業務コード・業務スキル名・業務内容・詳細を登録します。スタッフが選択したスキルは「詳細」に記載された業務コードを担当できます。</p>
+        </div>
+        <button type="button" class="button button-secondary" id="addJob">＋ 業務を追加</button>
+      </div>
+      <div class="job-skill-guide">
+        <strong>業務コードと詳細の読み方</strong>
+        <span>例：A＝A,B,C／B＝B,C／D＝A,B,C,D。詳細に記載した業務コードが、そのスキルで対応できる業務です。</span>
+      </div>
+      <div id="jobList" class="settings-list"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="subhead">
+        <div>
+          <h3>勤務パターン</h3>
+          <p>勤務時間は06:00～24:00の範囲で設定します。</p>
+        </div>
+        <button type="button" class="button button-secondary" id="addPattern">＋ 勤務パターンを追加</button>
+      </div>
+      <div id="patternList" class="settings-list"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="subhead">
+        <div>
+          <h3>必要人数</h3>
+          <p>曜日ごとに各勤務パターンの必要人数を設定します。</p>
+        </div>
+      </div>
+      <div class="coverage-table-wrap">
+        <table class="coverage-table" id="coverageTable"></table>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="subhead">
+        <div>
+          <h3>業務スキルごとの必要条件</h3>
+          <p>業務 × 勤務パターンごとの必要人数です。0名は条件として使用しません。必要な条件だけ追加できます。</p>
+        </div>
+        <button type="button" class="button button-secondary" id="addJobRule">＋ 条件を追加</button>
+      </div>
+      <div id="jobRuleList" class="job-rule-list"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="subhead">
+        <div>
+          <h3>自動作成ルール</h3>
+          <p>用意されたルールをON/OFFし、優先順位を変更できます。</p>
+        </div>
+      </div>
+      <div id="rulePriorityList" class="rule-priority-list"></div>
+      <p class="setting-note">※ 勤務曜日・勤務時間・希望休・週勤務日数は希望として扱い、シフト枠への人員配置を優先して自動作成します。</p>
+    </div>
+  </section>
+
+  <!-- OTHER -->
+  <section class="view-panel" id="view-other">
+    <div class="section-head">
+      <div>
+        <p class="section-kicker">OTHER</p>
+        <h2>その他</h2>
+        <p>定休日など、毎月・必要時に変更する情報を管理します。</p>
+      </div>
+      <button type="button" class="button button-save" data-save>設定を保存</button>
+    </div>
+
+    <div class="other-grid">
+      <article class="settings-section">
+        <div class="subhead">
+          <div>
+            <h3>固定の定休日</h3>
+            <p>毎週同じ曜日を定休日にします。</p>
+          </div>
+        </div>
+        <div id="weeklyHolidays" class="weekday-checks"></div>
+      </article>
+
+      <article class="settings-section">
+        <div class="subhead">
+          <div>
+            <h3>休日</h3>
+            <p>特定の日だけ休業・営業を変更できます。</p>
+          </div>
+        </div>
+        <div class="holiday-month-row">
+          <input type="month" id="holidayMonth">
+          <span>カレンダーの日付をクリックすると休日になります。もう一度クリックすると営業日に戻ります。</span>
+        </div>
+        <div id="holidayCalendar" class="holiday-calendar"></div>
+        <div class="holiday-list-head"><strong>この月の休日</strong></div>
+        <div id="holidayExceptions" class="holiday-exceptions"></div>
+      </article>
+    </div>
+
+    <div class="settings-section">
+      <div class="subhead">
+        <div>
+          <h3>共有・印刷</h3>
+          <p>シフト確定後に利用する機能です。</p>
+        </div>
+      </div>
+      <div class="action-row">
+        <button type="button" class="button button-secondary" id="previewToggle">月間プレビュー</button>
+        <button type="button" class="button button-secondary" id="printSchedule">印刷</button>
+        <div class="share-menu-wrap"><button type="button" class="button button-secondary" id="shareSchedule">共有</button><div class="share-menu" id="shareMenu" hidden><button type="button" id="nativeShare">端末で共有</button><button type="button" id="shareLine">LINEで共有</button></div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><strong>AUTOSHIFT</strong><span>シフト自動作成システム</span><p>AUTOSHIFTでは、スタッフの勤務条件や必要人数など必要な情報を入力することで、月間シフト表を自動で作成できます。</p></div>
+    <div class="footer-meta"><span>管理者用シフト管理画面</span><small>© 2026 AUTOSHIFT. All Rights Reserved.</small></div>
+  </div>
+</footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="assets/js/app.js?v=20261014-preview-layout" defer></script>
+</body>
+</html>
+
+
+
+
+
